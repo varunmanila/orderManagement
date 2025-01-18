@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="VK000001" author="Varun Kumar" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tblcustomers"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="tblcustomers">
+            <column name="customer_id" type="bigint" >
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)"/>
+            <column name="email" type="varchar(50)"/>
+            <column name="mobile" type="varchar(50)"/>
+            <column name="address" type="varchar(250)"/>
+        </createTable>
+
+        <addAutoIncrement
+                tableName="tblcustomers"
+                columnName="customer_id"
+                columnDataType="bigint"
+                startWith="1"/>
+    </changeSet>
+    <changeSet id="VK000002" author="Varun Kumar" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tblgrocery"/>
+            </not>
+        </preConditions>
+        <createTable tableName="tblgrocery">
+            <column name="grocery_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)"/>
+            <column name="price" type="double"/>
+            <column name="quantity" type="bigint"/>
+        </createTable>
+        <addAutoIncrement tableName="tblgrocery"  columnDataType="bigint" columnName="grocery_id"  startWith="1"/>
+    </changeSet>
+    <changeSet id="VK000003" author="Varun Kumar" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tblorder"/>
+            </not>
+        </preConditions>
+        <createTable tableName="tblorder">
+            <column name="order_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="bigint"/>
+            <column name="total_price" type="double"/>
+        </createTable>
+        <addAutoIncrement tableName="tblorder"  columnDataType="bigint" columnName="order_id"  startWith="1"/>
+        <addForeignKeyConstraint
+                        baseTableName="tblorder"
+                        baseColumnNames="customer_id"
+                        referencedTableName="tblcustomers"
+                        referencedColumnNames="customer_id"
+                        constraintName="fk_order_customer_order"
+                        onDelete="CASCADE"/>
+    </changeSet>
+    <changeSet id="VK000007" author="Varun Kumar">
+        <createTable tableName="tblorderproduct">
+            <column name="order_id" type="bigint" incrementBy="1" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="grocery_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="tblorderproduct" columnNames="order_id, grocery_id"/>
+        <addForeignKeyConstraint
+                baseTableName="tblorderproduct"
+                baseColumnNames="order_id"
+                referencedTableName="tblorder"
+                referencedColumnNames="order_id"
+                constraintName="fk_orderproduct_order"
+                onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="tblorderproduct"
+                baseColumnNames="grocery_id"
+                referencedTableName="tblgrocery"
+                referencedColumnNames="grocery_id"
+                constraintName="fk_orderproduct_grocery"
+                onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

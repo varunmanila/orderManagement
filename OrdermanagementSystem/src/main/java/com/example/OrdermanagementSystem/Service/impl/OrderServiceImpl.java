@@ -3,6 +3,7 @@ package com.example.OrdermanagementSystem.Service.impl;
 import com.example.OrdermanagementSystem.Model.Customers;
 import com.example.OrdermanagementSystem.Model.Grocery;
 import com.example.OrdermanagementSystem.Model.Order;
+import com.example.OrdermanagementSystem.Model.OrderPojo;
 import com.example.OrdermanagementSystem.Repocitory.CustomersRepocitory;
 import com.example.OrdermanagementSystem.Repocitory.GroceryRepocitory;
 import com.example.OrdermanagementSystem.Repocitory.OrderRepocitory;
@@ -12,6 +13,7 @@ import com.example.OrdermanagementSystem.Service.OrderService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -25,17 +27,23 @@ public class OrderServiceImpl  implements OrderService {
     CustomersRepocitory customersRepocitory;
 
     @Override
-    public Order saveOrder(Order order) {
-        Customers customer = customersRepocitory.findById(order.getCustomers().getId())
+    public Order saveOrder(OrderPojo order) {
+        Order o=new Order();
+        Customers customer = customersRepocitory.findById(order.getCustomer_id())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
-        order.setCustomers(customer);
-        List<Integer> groceryIds = order.getGroceryList().stream()
-                .map(Grocery::getId)
-                .collect(Collectors.toList());
-        List<Grocery>groceryList=groceryRepocitory.findAllById(groceryIds);
-        order.setGroceryList(groceryList);
-        order.setOderDate(LocalDateTime.now());
-        return orderRepocitory.save(order);
+        o.setCustomers(customer);
+        Double totalPrice=0.00;
+        List<Grocery>groceryList=groceryRepocitory.findAllById(order.getGroceryList().keySet());
+
+        for (Grocery g : groceryList) {
+            Integer quantity = order.getGroceryList().get(g.getId());
+            Double price = g.getPrice();
+            totalPrice += (quantity * price);
+        }
+        o.setTotalPrice(totalPrice);
+        o.setGroceryList(groceryList);
+        o.setOderDate(LocalDateTime.now());
+        return orderRepocitory.save(o);
     }
 
     @Override

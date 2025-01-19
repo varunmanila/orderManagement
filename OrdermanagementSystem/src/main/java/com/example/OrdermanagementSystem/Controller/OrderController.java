@@ -1,6 +1,7 @@
 package com.example.OrdermanagementSystem.Controller;
 
 import com.example.OrdermanagementSystem.Model.Order;
+import com.example.OrdermanagementSystem.Model.OrderPojo;
 import com.example.OrdermanagementSystem.Repocitory.OrderRepocitory;
 import com.example.OrdermanagementSystem.Service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class OrderController {
     OrderService orderService;
 
     @PostMapping("/save")
-    public Order createOrder(@RequestBody Order order){
+    public Order createOrder(@RequestBody OrderPojo order){
         return  orderService.saveOrder(order);
     }
     @PostMapping("/update")
